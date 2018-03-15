@@ -21,6 +21,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   </head>
   
   <body>
-    学习java开发微信.   ...<br>
+    学习java开发微信. ...<br>
   </body>
 </html>
