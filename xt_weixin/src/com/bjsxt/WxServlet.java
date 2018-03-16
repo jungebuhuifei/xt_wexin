@@ -2,7 +2,9 @@ package com.bjsxt;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.dom4j.DocumentException;
 
 /*接入*/
 public class WxServlet extends HttpServlet{
@@ -27,6 +30,64 @@ public class WxServlet extends HttpServlet{
 		//接入 调用方法 处理接入
 		connect(req,out);
 		
+	}
+	
+	@Override
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		req.setCharacterEncoding("UTF-8");
+		resp.setCharacterEncoding("UTF-8");
+		PrintWriter out = resp.getWriter();
+		String str = null;
+        String message=null;
+		try {
+			Map<String, String>map=Message.xmlToMap(req);
+			//从集合中，获取XML各个节点的内容
+			String ToUserName = map.get("ToUserName");
+			String FromUserName = map.get("FromUserName");
+			String CreateTime = map.get("CreateTime");
+			String MsgType = map.get("MsgType");
+			String Content = map.get("Content");
+			String MsgId = map.get("MsgId");
+			
+            if(MsgType.equals(MessageUtil.MESSAGE_TEXT)){
+            	/*TestMessage msg=new TestMessage();
+            	msg.setContent(Content);
+            	msg.setCreateTime(new Date().getTime());
+            	msg.setFromUserName(ToUserName);
+            	msg.setToUserName(FromUserName);
+            	msg.s
+            	msg.setContent("您好，"etMsgType(MsgType);+FromUserName+"\n我是："+ToUserName
+            			+"\n您发送的消息类型为："+MsgType+"\n您发送的时间为"+CreateTime
+            			+"\n我回复的时间为："+msg.getCreateTime()+"您发送的内容是"+Content);
+            			str = Message.objectToXml(msg); //调用Message工具类，将对象转为XML字符串*/
+            	
+              if(Content.equals("1")){
+            	  message=MessageUtil.initText(ToUserName, FromUserName, "你很有眼光!!!");
+              }else if(Content.equals("2")){
+            	  message=MessageUtil.initText(ToUserName, FromUserName, "我会努力改善的!!!");  
+              }else if(Content.equals("3")){
+            	  message=MessageUtil.initNewsMessage(ToUserName, FromUserName);
+              }else if(Content.equals("?")||Content.equals("？")){
+            	  message=MessageUtil.initText(ToUserName, FromUserName,MessageUtil.menuText());  
+              }else {
+            	  message=MessageUtil.initText(ToUserName, FromUserName, "输入非法命令！！！");
+              }
+            }else if(MsgType.equals(MessageUtil.MESSAGE_EVENT)){//判断是否为时间类型
+            	//从结合中获取是哪一种事件传入
+            	String eventType=map.get("Event");
+            	if(eventType.equals(MessageUtil.MESSAGE_SUBSCRIBE)){
+            		message=MessageUtil.initText(ToUserName, FromUserName,MessageUtil.menuText());
+            		
+            	}else if(eventType.equals(MessageUtil.MESSAGE_UNSUBSCRIBE)){
+            	}
+            }
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		out.print(message);
+		out.close();
 	}
     /*
      * 接入
